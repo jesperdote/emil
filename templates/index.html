@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gmail Email Monitor</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f4f7f6; color: #333; margin: 0; padding: 2rem; }
+        h1 { color: #2c3e50; }
+        #container { max-width: 900px; margin: auto; background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        table { width: 100%; border-collapse: collapse; margin-top: 1.5rem; }
+        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background-color: #4CAF50; color: white; }
+        tr:nth-child(even) { background-color: #f2f2f2; }
+        tr:hover { background-color: #ddd; }
+        #status { margin-top: 1rem; color: #777; font-style: italic; }
+        .error { color: #e74c3c; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div id="container">
+        <h1>Gmail Email Monitor</h1>
+        <p>Displaying unread emails and the time since they were received.</p>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Email Subject</th>
+                    <th>Age (Time Since Received)</th>
+                </tr>
+            </thead>
+            <tbody id="email-table-body">
+                <!-- Email data will be inserted here by JavaScript -->
+            </tbody>
+        </table>
+        <div id="status"></div>
+    </div>
+
+    <script>
+        const emailTableBody = document.getElementById('email-table-body');
+        const statusDiv = document.getElementById('status');
+
+        async function fetchEmails() {
+            const now = new Date();
+            statusDiv.textContent = `Checking for emails... Last updated: ${now.toLocaleTimeString()}`;
+            statusDiv.classList.remove('error');
+
+            try {
+                const response = await fetch('/api/emails');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                const emails = await response.json();
+
+                // Clear existing table rows
+                emailTableBody.innerHTML = '';
+
+                if (emails.length === 0) {
+                    emailTableBody.innerHTML = '<tr><td colspan="2">No unread emails found.</td></tr>';
+                } else {
+                    emails.forEach(email => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${escapeHtml(email.subject)}</td>
+                            <td>${escapeHtml(email.age)}</td>
+                        `;
+                        emailTableBody.appendChild(row);
+                    });
+                }
+            } catch (error) {
+                console.error('Failed to fetch emails:', error);
+                statusDiv.textContent = `Error fetching emails. See console for details. Retrying in 60 seconds...`;
+                statusDiv.classList.add('error');
+            }
+        }
+
+        function escapeHtml(unsafe) {
+            return unsafe
+                 .replace(/&/g, "&amp;")
+                 .replace(/</g, "&lt;")
+                 .replace(/>/g, "&gt;")
+                 .replace(/"/g, "&quot;")
+                 .replace(/'/g, "&#039;");
+        }
+
+        // Fetch emails immediately on page load, then every 60 seconds
+        fetchEmails();
+        setInterval(fetchEmails, 60000); // 60000 milliseconds = 1 minute
+    </script>
+
+</body>
+</html>

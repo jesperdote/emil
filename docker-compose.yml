@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    ports:
+      # Map host port 5001 to container port 5001
+      - "5001:5001"
+    volumes:
+      # Mount credentials.json as read-only
+      - ./credentials.json:/app/credentials.json:ro
+      # Mount token.json so it's created on the host and persists
+      # across container restarts.
+      - ./token.json:/app/token.json
+    # Set a container name for easier management
+    container_name: emil_monitor

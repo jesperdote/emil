@@ -26,7 +26,7 @@ Before you begin, you will need the following:
 
 1.  **Clone the Repository:**
     ```bash
-    git clone <your-repo-url>
+    git clone https://github.com/jesperdote/emil
     cd emil
     ```
 

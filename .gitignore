@@ -1,0 +1,17 @@
+# Python virtual environment
+venv/
+
+# Python cache files and artifacts
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Secrets and user-specific tokens
+# IMPORTANT: Do not commit these files to your repository.
+credentials.json
+token.json
+
+# IDE and editor-specific files
+.vscode/
+.idea/
